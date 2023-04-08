@@ -1,68 +1,166 @@
-#app {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-body {
-  background: #c2c2d6;
-  -webkit-touch-callout: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-  cursor: default;
-}
-
-
-
-.App {
-  text-align: center;
-}
-
 .calculator {
-  border: 2px solid #47476b;
-  padding: 5px;
-  background: black;
-  width: 320px;
-  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 10px;
+  width: 400px;
+  height: 600px;
+  margin: auto;
+  margin-top: 100px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #202020;
+  box-shadow: 8px 8px #555555;
 }
 
-.formulaScreen {
-  min-height: 20px;
-  font-family: digital;
-  font-size: 20px;
-  color: orange;
+.calculator button {
+  font-size: 2em;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  color: #333333;
+  grid-row: auto;
+  grid-column: auto;
+  box-shadow: 0 4px #999;
+}
+
+
+#clear {
+  grid-row: 2;
+  grid-column: 1;
+  background-color: #be3838;
+  box-shadow: 0 4px #911f1f;
+  color: #ffffff;
+}
+
+#divide {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+#multiply {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+#subtract {
+  grid-row: 2;
+  grid-column: 4;
+}
+
+#add {
+  grid-row: 3 / span 2;
+  grid-column: 4;
+}
+
+#equals {
+  grid-row: 5 / span 2;
+  grid-column: 4;
+}
+
+#nine {
+  grid-row: 3;
+  grid-column: 3;
+}
+
+#eight {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+#seven {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+#six{
+  grid-row: 4;
+  grid-column: 3;
+}
+
+#five {
+  grid-row: 4;
+  grid-column: 2;
+}
+
+#four {
+  grid-row: 4;
+  grid-column: 1;
+}
+
+#three {
+  grid-row: 5;
+  grid-column: 3;
+}
+
+#two {
+  grid-row: 5;
+  grid-column: 2;
+}
+
+#one {
+  grid-row: 5;
+  grid-column: 1;
+}
+
+#zero {
+  grid-row: 6;
+  grid-column: 1 / span 2;
+}
+
+#decimal{
+  grid-row: 6;
+  grid-column: 3;
+}
+
+
+#formula {
+  grid-row: 1;
+  grid-column: 1 / span 4;
+  font-size: 1.2em;
   text-align: right;
   vertical-align: text-top;
-  line-height: 20px;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+  margin: 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  color: #f1461f;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-weight: bold;
 }
 
-.outputScreen {
-  font-size: 29px;
-  font-family: digital;
-  color: white;
+#display{
+  grid-row: 1;
+  grid-column: 1 / span 4;
+  font-size: 1.8em;
   text-align: right;
-  line-height: 35px;
+  vertical-align: text-bottom;
+  bottom: 0;
+  margin-bottom: 0px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  color: #000000;
+  border-radius: 5px;
+  overflow-x: hidden;
+  font-weight: bold;
 }
 
-button {
-  position: relative;
-  height: 65px;
-  width: 80px;
-  color: white;
-  outline: 1px solid black;
-  border: none;
-  background: #4d4d4d;
-  font-family: Share Tech Mono, monospace;
-  font-size: 20px;
-  cursor: default;
+
+button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 1px #666;
+  transform: translateY(4px);
 }
+
 button:hover {
-  color: black;
-  outline: 0.05em solid grey;
-  z-index: 3;
+  background-color: #a6c0ce;
+}
+
+button:disabled:hover {
+  background-color: #bfbfbf;
+}
+
+button:disabled:disabled {
+  background-color: #928e8e;
 }

@@ -3,7 +3,7 @@ import './App.css';
 
 
 //Create a number pad 
-const numberPad = ({ number, numWord, handleClick }) => {
+const NumberPad = ({number, numWord, handleClick, enabledState }) => {
   return (
       <button className="num-pad" id={numWord} onClick={handleClick(number)}>
           {number}
@@ -12,7 +12,7 @@ const numberPad = ({ number, numWord, handleClick }) => {
 };
 
 //Create a symbol pad 
-const symbolPad = ({ symbol, symWord, handleClick }) => {
+const SymbolPad = ({ symbol, symWord, handleClick }) => {
   return (
       <button className="sym-pad" id={symWord} onClick={handleClick(symbol)}>
           {symbol}
@@ -24,7 +24,7 @@ class Calculator extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      numberPad: [
+      numberPads: [
         {
           "number": "7",
           "numWord": "seven"
@@ -38,7 +38,7 @@ class Calculator extends React.Component {
           "numWord": "nine"
         },
         {
-          "number": 4,
+          "number": "4",
           "numWord": "four"
         },
         {
@@ -71,7 +71,7 @@ class Calculator extends React.Component {
         }
       ],
 
-      symbolPad: [
+      symbolPads: [
         {
           "symbol": "/",
           "symWord": "divide"
@@ -82,90 +82,257 @@ class Calculator extends React.Component {
         },
         {
           "symbol": "-",
-          "symWord": "minus"
+          "symWord": "subtract"
         },
         {
           "symbol": "+",
-          "symWord": "minupluss"
+          "symWord": "add"
         }
       ],
 
       input: "0",
-      output: "0",
       symbol: "",
-      formula: ""
-    }
+      formula: "",
+      calculated: 0,
+      result: "0",
+    };
+    this.handleNumClick = this.handleNumClick.bind(this);
+    this.handleSymClick = this.handleSymClick.bind(this);
+    this.handleClearClick = this.handleClearClick.bind(this);
+    this.handleEqualClick = this.handleEqualClick.bind(this);
+
   }
 
+  //callback function that takes the current state as an argument and returns the updated state object.
   handleNumClick(number) {
     return () => {
-        //set note text  
-        this.setState({
-            input: input + number,
-            formula: input + number
-        });
+      this.setState(state => {
+        const old_input = state.input.replace(/[+\-*/]/g, "");
+        const old_formula = state.formula;
+        const old_calculated = state.calculated;
+        
+        
+        if(old_input.length >= 19)
+        {
+          return;
+        }
+        
+
+        if (number === "." && old_input.includes(".")) {
+          return;
+        }
+
+        if(number === "0" && old_input === "0"){
+          return;
+        }
+        
+        //Start from scratch
+        if (old_calculated) {
+          return {
+            formula: number,
+            symbol: "",
+            input: number,
+            calculated: 0,
+          };
+        }
+
+        if ((old_input === "0" || old_input === "") && number === ".") {
+          return {
+            symbol: "",
+            input: "0.",
+            formula: old_formula + "0.",
+            calculated: 0,
+          }
+        } 
+
+        if (old_formula === "") {
+          return {
+            symbol: "",
+            formula: number,
+            input: number,
+            calculated: 0,
+          };
+        }
+        else {
+          return {
+            symbol: "",
+            input: old_input + number,
+            formula: old_formula + number,
+            calculated: 0,
+          }
+        }
+      });
     };
   }
 
-
-  handleSymClick(symbol) {
+  //use a callback function inside this.setState() to update the state of the component. This allows us to use the current state to calculate the new state based on the input symbol.
+  handleSymClick(inputsymbol) {
     return () => {
-        //set note text  
-        this.setState({
-            symbol: symbol,
-            formula: formula + symbol,
-            input: "0"
-        });
+      this.setState(state => {
+        const old_formula = state.formula;
+        const old_symbol = state.symbol;
+        const old_calculated = state.calculated;
+  
+        let new_input = "0";
+        let new_formula = "";
+        let new_symbol = "";
+  
+        //overwrite last minus symbol if another consecutive symbol is entered (have to remove extra char in this case)
+        if (old_symbol == "-" && inputsymbol !== "") {
+          return {
+            formula: old_formula.slice(0, -3) + inputsymbol + " ",
+            symbol: inputsymbol,
+            input: inputsymbol,
+            calculated: 0,
+          };
+        }
+        
+        //overwrite all other symbols if another consecutive symbol is entered (excluding (-))
+        if (old_symbol !== "" && inputsymbol !== "-") {
+          return {
+            formula: old_formula.slice(0, -2) + inputsymbol + " ",
+            symbol: inputsymbol,
+            input: inputsymbol,
+            calculated: 0,
+          };
+        }
+  
+        if (inputsymbol !== "-" && old_formula === "") {
+          return;
+        }
+  
+        //Create new formula using previous result
+        if (old_calculated) {
+          return {
+            formula: state.result + " " + inputsymbol + " ",
+            symbol: inputsymbol,
+            input: inputsymbol,
+            calculated: 0,
+          };
+        }
+  
+        if (inputsymbol === "-" && old_formula === "") {
+          new_formula = "-";
+          new_input = "-";
+        } else if (inputsymbol === "-" && old_symbol !== "") {
+          new_symbol = inputsymbol;
+          new_formula = inputsymbol;
+          new_input = inputsymbol;
+        } else {
+          new_symbol = inputsymbol;
+          new_formula = " " + inputsymbol + " ";
+          new_input = inputsymbol;
+        }
+  
+        return {
+          symbol: new_symbol,
+          formula: old_formula + new_formula,
+          input: new_input,
+          calculated: 0,
+        };
+      });
     };
   }
 
   handleClearClick () {
-    this.setState({
-      input: "0",
-      output: "0",
-      symbol: "",
-      formula: ""
+
+    console.log("Clear")
+
+    this.setState(state => {
+      return {
+        input: "0",
+        symbol: "",
+        formula: "",
+        result: "0",
+        calculated: 0
+      }
     });
   };
+
 
   handleEqualClick () {
-    this.setState({
-      output: input,
-      input: "0"
-    });
+
+    let old_formula = this.state.formula;
+    try {
+
+      console.log(old_formula)
+      let result = eval(old_formula);
+      console.log(result)
+
+      this.setState(state =>({
+        formula: state.formula + "=" + result,
+        input: result.toString(),
+        result: result,
+        calculated: 1
+      }));
+
+    } 
+    catch (error) {
+      this.setState({
+        input: "Invalid formula",
+        formula: ""
+      });
+    }
   };
 
+
   render() {
+
+
+    let displayStyle = {
+      color: 'black'
+    }
+
+    //change text color based on result status
+    if(this.state.calculated == 1) 
+    {
+      displayStyle = {
+        color: 'green'
+      }
+    } 
+
+    if(this.state.input == "Invalid formula")
+    {
+      displayStyle = {
+        color: 'green'
+      }
+    }
+    
+
     return (
       <div className="calculator">
 
-        <p id="formula" className="formulaScreen">{this.state.input}</p>
-        <p id="display" className="outputScreen">{this.state.input}</p>
+        <p id="formula" className="formulaScreen">{this.state.formula}</p>
 
-        <div id="display-pad">
+        <p id="display" className="outputScreen" style={displayStyle}>{this.state.input}</p>
+
+        
           {/*Map the number pad */}
-          {this.state.numberPad.map(item => (
-              <numberPad
+          {this.state.numberPads.map(item => (
+              <NumberPad
+                  key={item.numWord}
                   number={item.number}
                   numWord={item.numWord}
                   handleClick={this.handleNumClick}
               />
           ))}
-        </div>
+        
 
-        <div id="symbol-pad">
+
           {/*Map the symbol pad */}
-          {this.state.symbolPad.map(item => (
-              <symbolPad
+          {this.state.symbolPads.map(item => (
+              <SymbolPad
+                  key={item.symWord}
                   symbol={item.symbol}
                   symWord={item.symWord}
                   handleClick={this.handleSymClick}
               />
           ))}
-        </div>
+
 
         <button id="equals" onClick={this.handleEqualClick}>=</button>
-        <button id="clear" onClick={this.handleClearClick}>=</button>
+
+        <button id="clear" onClick={this.handleClearClick}>C</button>
     
       </div>
     );
